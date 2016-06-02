@@ -42,10 +42,30 @@ for (var index = 1; index <= totalPagesNeeded; index++) {
 
   $paginationLink.setAttribute('href', '#');
   $paginationLink.innerHTML = index;
+
+  //  Add Event Listener to Link
+  $paginationLink.addEventListener('click', function(){
+    updateList(this);
+  });
+
   $paginationList.appendChild($paginationItem);
 }
 
 $page.appendChild($pagination);
+
+//  Reset Buttons
+function removeActiveClass() {
+  var $activeButton = document.getElementsByClassName('active')[0];
+  $activeButton.classList = "";
+}
+
+//  Update List Function
+function updateList($button) {
+  var pageIndex = Number($button.innerHTML);
+  removeActiveClass();
+  $button.classList = "active";
+  //  THIS IS WHERE I LEFT OFF!
+}
 
 //  Add Search Field - - - - - - - - - - - -
 var $pageHeader = document.getElementsByClassName('page-header')[0];
