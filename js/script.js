@@ -1,61 +1,79 @@
-// //  Store a reference to all Student Profiles
-// var $studentProfilesList = document.getElementsByClassName('student-item');
-// //  Store a reference to the div that contains the Page Content <div>
-// //  Note: I like to name variables that contain an instance of a DOM Element with a '$'
-// var $page = document.getElementsByClassName('page')[0];
-// //  Store a reference to the <div> that contains the Student Profiles
-// var $studentList = document.getElementsByClassName('student-list')[0];
-// //  Store the number of Student Profiles per Page
-// var profilesPerPage = 10;
-// //  Calculates how many pages will be needed by dividing the total number of Student Profiles in  `studentProfilesList` and dividing it by the `profilesPerPage`. I then use Math.ceil() to round up the result.
-// var totalNumberOfPages = (Math.ceil($studentProfilesList.length / profilesPerPage));
-// //  Create a number of arrays that equals `totalNumberOfPages` where each array will hold the corresponding student profiles.
-// for (var index = 1; index <= totalNumberOfPages; index++) {
-//   window["page"+(index)] = [];
-// }
-//
-// // function profilePackager(array) {
-// //   var counter = 1;
-// //   for (var index = 0; index < array.length; index++) {
-// //     if (counter < profilesPerPage) {
-// //
-// //     }
-// //   }
-// // }
-//
-// var counter = 1;
-// var pageCounter = 1;
-// for (var index = 0; index < $studentProfilesList.length; index++) {
-//   if (counter <= profilesPerPage) {
-//     console.log($studentProfilesList[index]);
-//     counter++;
-//   } else {
-//     counter = 1;
-//     console.log("We are on page " + pageCounter);
-//     pageCounter++;
-//   }
-// }
+//  Paginate `index.html`
+//    1. Search through `.student-list` and capture total amount of children.
+//    2. Hide (or remove from DOM?) children[11] -> children[n - 1], where n = total amount of children.
+//    3. Add m buttons where m = n/l and l = profiles per page limit.
+//    4. Add search input field and search button
 
-var totalPages = 5;
-for (var j = 1; j <= totalPages; j++) {
-  eval('var array' + j + '=[]');
+//  Add Pagination - - - - - - - - - - - -
+var $page = document.getElementsByClassName('page')[0];
+var $studentList = document.getElementsByClassName('student-list')[0];
+var numberOfProfiles = $studentList.children.length;
+var profilePageLimit = 10;
+var totalPagesNeeded = Math.ceil(numberOfProfiles / profilePageLimit);
+
+var testArray = [];
+for (var index = 0; index < numberOfProfiles; index++) {
+  testArray.push($studentList.children[index]);
 }
 
-var counter = 0;
-var limit = 2;
-var pageIndex = 1;
-var list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-for (var index = 0; index < list.length; index++) {
+$studentList.innerHTML = "";
 
-  if (counter == limit) {
-    pageIndex++;
-    counter = 0;
-  }
-
-  eval('array' + pageIndex + '.push(' + list[index] + ')');
-
-  if (counter < 2) {
-    counter++;
-  }
-
+// Update Student List - - - - - - - - - - - - -
+for (var index = 0; index < profilePageLimit; index++) {
+  $studentList.appendChild(testArray[index]);
+  console.log("Student Profile #" + index + " has been added to the DOM.");
 }
+
+//  Add Pagination - - - - - - - - - - - - -
+var $pagination = document.createElement('div');
+$pagination.className = "pagination";
+var $paginationList = document.createElement('ul');
+$pagination.appendChild($paginationList);
+
+for (var index = 1; index <= totalPagesNeeded; index++) {
+  var $paginationItem = document.createElement('li');
+  var $paginationLink = document.createElement('a');
+
+  $paginationItem.appendChild($paginationLink);
+
+  if (index == 1) {
+    $paginationLink.className = 'active';
+  }
+
+  $paginationLink.setAttribute('href', '#');
+  $paginationLink.innerHTML = index;
+  $paginationList.appendChild($paginationItem);
+}
+
+$page.appendChild($pagination);
+
+//  Add Search Field - - - - - - - - - - - -
+var $pageHeader = document.getElementsByClassName('page-header')[0];
+//  Create Student Search Div; Set Class to `student-search`
+var $studentSearch = document.createElement('div');
+$studentSearch.className = 'student-search';
+$pageHeader.appendChild($studentSearch);
+
+//  Create Input Field; set placeholder attribute to 'Search for students...'
+var $input = document.createElement('input');
+$input.setAttribute('placeholder', 'Search for students...');
+
+//  Create pseudo div; Set pseudo attribute; Set style attribute; append pseudo div to input
+var $pseudo = document.createElement('div');
+$pseudo.setAttribute('pseudo', '-webkit-input-placeholder');
+$pseudo.setAttribute('style', 'display: block !important; text-overflow: clip;');
+$pseudo.innerHTML = 'Search for students...';
+$input.appendChild($pseudo);
+
+//  Create contenteditable div; set contenteditable attribute; append contentEditable div to input
+var $contentEditable = document.createElement('div');
+$contentEditable.setAttribute('contenteditable', 'plaintext-only');
+$input.appendChild($contentEditable);
+
+//  Create Button Element
+var $button = document.createElement('button');
+$button.innerHTML = 'Search';
+
+//  Append Input Field and Button to Student Search Div
+$studentSearch.appendChild($input);
+$studentSearch.appendChild($button);
