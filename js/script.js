@@ -1,20 +1,22 @@
-//  Paginate `index.html`
-//    1. Search through `.student-list` and capture total amount of children.
-//    2. Hide (or remove from DOM?) children[11] -> children[n - 1], where n = total amount of children.
-//    3. Add m buttons where m = n/l and l = profiles per page limit.
-//    4. Add search input field and search button
-
 //  Add Pagination - - - - - - - - - - - -
+//  Capture <div> that contains `index.html` content
 var $page = document.getElementsByClassName('page')[0];
+//  Capture <div> that contains the Student Profiles
 var $studentList = document.getElementsByClassName('student-list')[0];
+//  Capture total number of Student Profiles initially present in `index.html`
 var numberOfProfiles = $studentList.children.length;
+//  Define Student Profile display limit
 var profilePageLimit = 10;
+//  Calculate the Total Page Buttons needed based on Number of Profiles and Total Pages Needed
 var totalPagesNeeded = Math.ceil(numberOfProfiles / profilePageLimit);
+//  Create and empty Array to store a reference to every Student Profile in `index.html`
 var testArray = [];
+//  Loop through every Student Profile in the Student List and add it to the Array declared on line 15
 for (var index = 0; index < numberOfProfiles; index++) {
   testArray.push($studentList.children[index]);
 }
-//  Add Pagination - - - - - - - - - - - - -
+
+//  Create Pagination Elements - - - - - - - - - - - - -
 var $pagination = document.createElement('div');
 $pagination.className = "pagination";
 var $paginationList = document.createElement('ul');
@@ -26,39 +28,115 @@ for (var index = 1; index <= totalPagesNeeded; index++) {
   if (index == 1) {
     $paginationLink.className = 'active';
   }
-  $paginationLink.setAttribute('href', '#');
+  // $paginationLink.setAttribute('href', '#');
   $paginationLink.innerHTML = index;
   //  Add Event Listener to Link
   $paginationLink.addEventListener('click', function(){
-    updateList(this);
+    listManager(this);
   });
   $paginationList.appendChild($paginationItem);
 }
 $page.appendChild($pagination);
 
-//  Reset Buttons
-function removeActiveClass() {
+//  Functions - - - - - - - - - - - -
+//  Student Profile List Manager Function
+function listManager($button) {
+  //  Capture Old and Requested Page Indices
+  var oldPageIndex = Number(document.getElementsByClassName('active')[0].innerHTML);
+  var requestedPageIndex = Number($button.innerHTML);
+  //  Update Button Class List
+  buttonManager($button);
+  //  Update Student Profile Listing
+  profileManager(oldPageIndex, requestedPageIndex);
+}
+//  Button Class Manager Function
+function buttonManager($pressedButton) {
+  //  Capture Active button; Remove '.active' class
   var $activeButton = document.getElementsByClassName('active')[0];
   $activeButton.classList = "";
+  //  Add '.active' to Pressed Button
+  $pressedButton.classList = "active";
 }
-//  Update List Function
-function updateList($button) {
-  var pageIndex = Number($button.innerHTML);
-  var indexA = ((pageIndex - 1) * profilePageLimit);
-  var indexB = pageIndex * profilePageLimit;
-  if (testArray.length < indexB) {
-    indexB = testArray.length;
-  }
-  //  Remove class from Active button; Add Class to Clicked button
-  removeActiveClass();
-  $button.classList = "active";
-  //  Clear Student List; Fill in List with requested Profiles
-  $studentList.innerHTML = "";
-  for (var index = indexA; index < indexB; index++) {
-    $studentList.appendChild(testArray[index]);
-    // console.log("Profile #" + index + " has been added to the DOM.");
+//  Student Profile Manager Function
+function profileManager(oldPageIndex, requestedPageIndex) {
+  if (oldPageIndex == requestedPageIndex) {
+    taskManager("Initializing List", indexManager(requestedPageIndex));
+  } else {
+    taskManager("Update List", indexManager(requestedPageIndex), indexManager(oldPageIndex));
   }
 }
+//  Index Manager Function
+function indexManager(pageIndex) {
+  var profileIndexA = ((pageIndex - 1) * profilePageLimit);
+  var profileIndexB = pageIndex * profilePageLimit;
+  if (testArray.length < profileIndexB) {
+    profileIndexB = testArray.length;
+  }
+  return [profileIndexA, profileIndexB];
+}
+//  Task Manager Function
+function taskManager(action, requestedProfileIndices, oldProfileIndices) {
+  switch (action) {
+
+    case "Initializing List":
+      console.log("Initializing list...");
+      for (var index = requestedProfileIndices[0]; index < requestedProfileIndices[1]; index++) {
+        var $profile = testArray[index];
+        $profile.classList.add("fade-in");
+        $studentList.appendChild($profile);
+      }
+      console.log("List has been successfully initialized!");
+      classCleaner("Fade in", requestedProfileIndices);
+      break;
+
+    case "Update List":
+      classCleaner("Fade in", oldProfileIndices);
+      console.log("Removing old Profiles...");
+      for (var index = oldProfileIndices[0]; index < oldProfileIndices[1]; index++) {
+        var $profile = testArray[index];
+        $profile.classList.add("fade-out");
+      }
+      $studentList.innerHTML = "";
+      console.log("Adding requested Profiles...");
+      classCleaner("Fade out", oldProfileIndices);
+
+      setTimeout(function(){
+
+        for (var index = requestedProfileIndices[0]; index < requestedProfileIndices[1]; index++) {
+          var $profile = testArray[index];
+          $profile.classList.add("fade-in");
+          $studentList.appendChild($profile);
+        }
+
+      },100);
+      console.log("List has been successfully updated!")
+      classCleaner("Fade in", requestedProfileIndices);
+      break;
+
+    default:
+      console.log("How may I help you?");
+  }
+}
+//  Class Cleaner
+function classCleaner(className, indices) {
+  switch(className) {
+
+    case "Fade out":
+      for (var index = indices[0]; index < indices[1]; index++) {
+        var $profile = testArray[index];
+        $profile.classList.remove("fade-out");
+      }
+      break;
+
+    case "Fade in":
+      for (var index = indices[0]; index < indices[1]; index++) {
+        var $profile = testArray[index];
+        $profile.classList.remove("fade-in");
+      }
+      break;
+  }
+}
+
 //  Add Search Field - - - - - - - - - - - -
 var $pageHeader = document.getElementsByClassName('page-header')[0];
 //  Create Student Search Div; Set Class to `student-search`
@@ -84,7 +162,10 @@ $button.innerHTML = 'Search';
 //  Append Input Field and Button to Student Search Div
 $studentSearch.appendChild($input);
 $studentSearch.appendChild($button);
-//  Update Student List
+
+//  Initialization - - - - - - - - - - - -
+//  Clear Student List
 $studentList.innerHTML = "";
+//  Initial Student Profile Display
 var $defaultList = document.getElementsByClassName('active')[0];
-updateList($defaultList);
+listManager($defaultList);
