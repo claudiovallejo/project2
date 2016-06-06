@@ -42,12 +42,15 @@ $page.appendChild($pagination);
 //  Student Profile List Manager Function
 function listManager($button) {
   //  Capture Old and Requested Page Indices
-  var oldPageIndex = Number(document.getElementsByClassName('active')[0].innerHTML);
+  var currentPageIndex = Number(document.getElementsByClassName('active')[0].innerHTML);
+  //  Capture $studenList length
+  var currentListLength = $studentList.children.length;
+  //  Capture Requested Page Index
   var requestedPageIndex = Number($button.innerHTML);
   //  Update Button Class List
   buttonManager($button);
   //  Update Student Profile Listing
-  profileManager(oldPageIndex, requestedPageIndex);
+  profileManager(currentListLength, currentPageIndex, requestedPageIndex);
 }
 //  Button Class Manager Function
 function buttonManager($pressedButton) {
@@ -58,11 +61,11 @@ function buttonManager($pressedButton) {
   $pressedButton.classList = "active";
 }
 //  Student Profile Manager Function
-function profileManager(oldPageIndex, requestedPageIndex) {
-  if (oldPageIndex == requestedPageIndex) {
-    taskManager("Initializing List", indexManager(requestedPageIndex));
+function profileManager(currentListLength, currentPageIndex, requestedPageIndex) {
+  if (currentPageIndex == requestedPageIndex) {
+    taskManager("Initialize List", indexManager(requestedPageIndex));
   } else {
-    taskManager("Update List", indexManager(requestedPageIndex), indexManager(oldPageIndex));
+    taskManager("Update List", indexManager(requestedPageIndex), currentListLength);
   }
 }
 //  Index Manager Function
@@ -75,65 +78,39 @@ function indexManager(pageIndex) {
   return [profileIndexA, profileIndexB];
 }
 //  Task Manager Function
-function taskManager(action, requestedProfileIndices, oldProfileIndices) {
+function taskManager(action, requestedProfileIndices, currentListLength) {
   switch (action) {
-
-    case "Initializing List":
+    //  Initializing List on initial Document Load
+    case "Initialize List":
       console.log("Initializing list...");
       for (var index = requestedProfileIndices[0]; index < requestedProfileIndices[1]; index++) {
         var $profile = testArray[index];
-        $profile.classList.add("fade-in");
+        $profile.classList.add("fadeIn");
         $studentList.appendChild($profile);
       }
       console.log("List has been successfully initialized!");
-      classCleaner("Fade in", requestedProfileIndices);
       break;
-
+    //  Updating List Based on Active Page + Requested Page
     case "Update List":
-      classCleaner("Fade in", oldProfileIndices);
       console.log("Removing old Profiles...");
-      for (var index = oldProfileIndices[0]; index < oldProfileIndices[1]; index++) {
-        var $profile = testArray[index];
-        $profile.classList.add("fade-out");
+      for (var index = 0; index < currentListLength; index++) {
+        var $profile = $studentList.childNodes[index];
+        $profile.classList.remove('fadeIn');
+        $profile.classList.add("fadeOut");
       }
-      $studentList.innerHTML = "";
-      console.log("Adding requested Profiles...");
-      classCleaner("Fade out", oldProfileIndices);
-
       setTimeout(function(){
-
+        $studentList.innerHTML = "";
         for (var index = requestedProfileIndices[0]; index < requestedProfileIndices[1]; index++) {
           var $profile = testArray[index];
-          $profile.classList.add("fade-in");
+          $profile.classList.remove('fadeOut');
+          $profile.classList.add("fadeIn");
           $studentList.appendChild($profile);
         }
-
-      },100);
-      console.log("List has been successfully updated!")
-      classCleaner("Fade in", requestedProfileIndices);
+      },1000);
       break;
-
+    //  Default Switch Case
     default:
       console.log("How may I help you?");
-  }
-}
-//  Class Cleaner
-function classCleaner(className, indices) {
-  switch(className) {
-
-    case "Fade out":
-      for (var index = indices[0]; index < indices[1]; index++) {
-        var $profile = testArray[index];
-        $profile.classList.remove("fade-out");
-      }
-      break;
-
-    case "Fade in":
-      for (var index = indices[0]; index < indices[1]; index++) {
-        var $profile = testArray[index];
-        $profile.classList.remove("fade-in");
-      }
-      break;
   }
 }
 
