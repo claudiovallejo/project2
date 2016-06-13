@@ -15,6 +15,7 @@ var testArray = [];
 for (var index = 0; index < numberOfProfiles; index++) {
   testArray.push($studentList.children[index]);
 }
+console.log(testArray.length);
 
 //  Create Pagination Elements - - - - - - - - - - - - -
 var $pagination = document.createElement('div');
